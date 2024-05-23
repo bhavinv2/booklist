@@ -38,13 +38,20 @@ def add_book():
 
 
 # def view_book():
-#     try:
-#         with open('sample.json', 'r') as file:
+#
+#     with open('sample.json', 'r') as file:
 #             # Reading from json file
+#         try:
 #             json_object = json.load(file)
-#         print(json_object)
-#     except FileNotFoundError:
-#         print("No books")
+#         except json.JSONDecodeError:
+#             json_object = []
+#
+#     if not json_object:
+#         print("No books available.")
+#     else:
+#         for index, book in enumerate(json_object, start=1):
+#             print(f"{index}. Title: {book['Title']}, Author: {book['Author']}, Genre: {book['Genre']}")
+
 
 def view_book():
 
@@ -52,18 +59,12 @@ def view_book():
             # Reading from json file
         try:
             json_object = json.load(file)
+            for index, book in enumerate(json_object, start=1):
+                print(f"{index}. Title: {book['Title']}, Author: {book['Author']}, Genre: {book['Genre']}")
         except json.JSONDecodeError:
-            json_object = []
+            print("No books available")
 
-    if not json_object:
-        print("No books available.")
-    else:
-        for index, book in enumerate(json_object, start=1):
-            print(f"{index}. Title: {book['Title']}, Author: {book['Author']}, Genre: {book['Genre']}")
-
-
-
-
+   
 
 
 def main():
