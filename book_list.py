@@ -1,6 +1,5 @@
-
-
 import json
+
 
 class TrieNode:
     def __init__(self):
@@ -65,7 +64,7 @@ def add_book():
 
     book_list.append(book_dict)
     trie.insert(title.lower(), book_dict)
-    # Serializing json
+
     json_object = json.dumps(book_list, indent=4)
     with open("sample.json", "w") as outfile:
         outfile.write(json_object)
@@ -76,10 +75,9 @@ def add_book():
 def view_book():
 
     with open('sample.json', 'r') as file:
-            # Reading from json file
+
         try:
             json_object = json.load(file)
-            # print(json_object) instead of this, use below
             for index, book in enumerate(json_object, start=1):
                 print(f"{index}. Title: {book['Title']}, Author: {book['Author']}, Genre: {book['Genre']}")
         except json.JSONDecodeError:
@@ -125,7 +123,10 @@ def rate_book():
 
 def get_rec():
     user_name = input("Enter your username: ")
-    user_ratings = [rate for rate in rate_list if rate["User"] == user_name]
+    user_ratings = []
+    for rate in rate_list:
+        if rate["User"] == user_name:
+            user_ratings.append(rate)
     if not user_ratings:
         print("No ratings found for this user.")
         return
