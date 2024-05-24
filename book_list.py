@@ -1,6 +1,43 @@
-#userinterface milestone 1
+
 
 import json
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end_of_word = False
+        self.books = []
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, title, book):
+        node = self.root
+        for char in title:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_end_of_word = True
+        node.books.append(book)
+
+    def search(self, prefix):
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return []
+            node = node.children[char]
+        return self._collect_all_books(node)
+
+    def _collect_all_books(self, node):
+        books = []
+        if node.is_end_of_word:
+            books.extend(node.books)
+        for child in node.children.values():
+            books.extend(self._collect_all_books(child))
+        return books
+
+trie = Trie()
 
 def main_menu():
     print("Options:")
@@ -27,6 +64,7 @@ def add_book():
     }
 
     book_list.append(book_dict)
+    trie.insert(title.lower(), book_dict)
     # Serializing json
     json_object = json.dumps(book_list, indent=4)
     with open("sample.json", "w") as outfile:
@@ -56,15 +94,19 @@ def rate_book():
             for index, book in enumerate(json_object, start=1):
                 print(f"{index}. Title: {book['Title']}, Author: {book['Author']}, Genre: {book['Genre']}")
 
-            book_to_rate = int(input("Please select the number of the book to rate: ")) - 1
-            if book_to_rate < 0 or book_to_rate >= len(json_object):
-                print("Invalid selection. Please try again.")
-                return
+            while True:
+                book_to_rate = int(input("Please select the number of the book to rate: ")) - 1
+                if book_to_rate < 0 or book_to_rate >= len(json_object):
+                    print("Invalid selection. Please try again.")
+                else:
+                    break
 
-            rate_number = input(f"Enter your rating for '{json_object[book_to_rate]['Title']}' (1-5): ")
-            if not rate_number.isdigit() or int(rate_number) < 1 or int(rate_number) > 5:
-                print("Invalid rating. Please enter a number between 1 and 5.")
-                return
+            while True:
+                rate_number = input(f"Enter your rating for '{json_object[book_to_rate]['Title']}' (1-5): ")
+                if not rate_number.isdigit() or int(rate_number) < 1 or int(rate_number) > 5:
+                    print("Invalid rating. Please enter a number between 1 and 5.")
+                else:
+                    break
 
             rate_number = int(rate_number)
             rate_dict = {
@@ -79,6 +121,8 @@ def rate_book():
         print("No books available to rate. Please add one first.")
 
 
+
+
 def get_rec():
     user_name = input("Enter your username: ")
     user_ratings = [rate for rate in rate_list if rate["User"] == user_name]
@@ -91,7 +135,15 @@ def get_rec():
 
 
 
-
+def search_books():
+    prefix = input("Enter book title prefix: ").lower()
+    results = trie.search(prefix)
+    if results:
+        print("Search Results:")
+        for book in results:
+            print(f"Title: {book['Title']}, Author: {book['Author']}, Genre: {book['Genre']}")
+    else:
+        print("No books found with that prefix.")
 
 
 
@@ -109,7 +161,7 @@ def main():
         elif user_input == "4":
             get_rec()
         elif user_input == "5":
-            print("search book")
+            search_books()
         elif user_input == "6":
             break
         else:
